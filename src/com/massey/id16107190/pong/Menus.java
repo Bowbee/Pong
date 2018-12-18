@@ -27,6 +27,14 @@ public class Menus extends GameEngine {
 	public static void start() {
 		
 		Game pong = new Game();
+		GameState gs = GameState.getInstance();
+		gs.setPlayers(true, true);
+		gs.setOnline(true);
+		
+		NetworkSystem ns = NetworkSystem.getInstance();
+		ns.setHost(true);
+		ns.setPlayerIndex(1);
+		
 		GameEngine.createGame(pong, cs.getFPS());
 	}
 

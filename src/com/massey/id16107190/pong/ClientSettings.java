@@ -7,13 +7,14 @@ public final class ClientSettings {
     private static ClientSettings INSTANCE;
 	private int resX = 600;
 	private int resY = 600;
-	private int fps = 60;
+	private int fps = 144;
 	
 	private int p1u = KeyEvent.VK_W;
 	private int p1d = KeyEvent.VK_S;
 	
 	private int p2u = KeyEvent.VK_UP;
 	private int p2d = KeyEvent.VK_DOWN;
+	
 	private double waitTime = 1500; //ms, sec/1000
 	
      
