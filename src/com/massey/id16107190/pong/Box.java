@@ -1,9 +1,10 @@
 package com.massey.id16107190.pong;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class Box {
+public class Box implements Serializable{
 	private boolean visible = false;
 	
 	private float coordX = 0;
@@ -12,6 +13,7 @@ public class Box {
 	private float height = 0;
 	private List<Float> hitbox = Arrays.asList(0f, 0f, 0f, 0f);
 	private String label = "";
+	private int pHeight;
 	
 	
 	public Box(float cX, float cY, float w, float h, boolean vs) {
@@ -119,6 +121,14 @@ public class Box {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public int getpHeight() {
+		return pHeight;
+	}
+
+	public void setpHeight(int pHeight) {
+		this.pHeight = pHeight;
 	}
 
 

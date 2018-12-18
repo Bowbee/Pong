@@ -1,6 +1,8 @@
 package com.massey.id16107190.pong;
 
-public class Ball {
+import java.io.Serializable;
+
+public class Ball implements Serializable {
 	
 	private float posX;
 	private float posY;

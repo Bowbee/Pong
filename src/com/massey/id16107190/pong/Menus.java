@@ -19,8 +19,12 @@ public class Menus extends GameEngine {
 		// Initialise Window Size
 		setWindowSize(cs.getResX(), cs.getResY());
 		
-		Box playBtn = new Box(cs.getResX()/2, cs.getResY()/2, 200, 80, true, "Play");
+		Box playBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 200, 80, true, "Play");
+		Box clientBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.50), 200, 80, true, "Client");
+		Box hostBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.75), 200, 80, true, "Host");
 		buttons.add(playBtn);
+		buttons.add(clientBtn);
+		buttons.add(hostBtn);
 		
 	}
 
@@ -28,12 +32,52 @@ public class Menus extends GameEngine {
 		
 		Game pong = new Game();
 		GameState gs = GameState.getInstance();
+		NetworkSystem ns = NetworkSystem.getInstance();
+		/*
 		gs.setPlayers(true, true);
 		gs.setOnline(true);
-		
-		NetworkSystem ns = NetworkSystem.getInstance();
 		ns.setHost(true);
 		ns.setPlayerIndex(1);
+		*/
+		
+		gs.setPlayers(true, true);
+		gs.setOnline(true);
+		ns.setClient(true);
+		ns.setPlayerIndex(2);
+		
+		
+		GameEngine.createGame(pong, cs.getFPS());
+	}
+	public static void startHost() {
+			
+		Game pong = new Game();
+		GameState gs = GameState.getInstance();
+		NetworkSystem ns = NetworkSystem.getInstance();
+		
+		gs.setPlayers(true, true);
+		gs.setOnline(true);
+		ns.setHost(true);
+		ns.setPlayerIndex(1);
+
+		GameEngine.createGame(pong, cs.getFPS());
+	}
+	public static void startClient() {
+		
+		Game pong = new Game();
+		GameState gs = GameState.getInstance();
+		NetworkSystem ns = NetworkSystem.getInstance();
+		/*
+		gs.setPlayers(true, true);
+		gs.setOnline(true);
+		ns.setHost(true);
+		ns.setPlayerIndex(1);
+		*/
+		
+		gs.setPlayers(true, true);
+		gs.setOnline(true);
+		ns.setClient(true);
+		ns.setPlayerIndex(2);
+		
 		
 		GameEngine.createGame(pong, cs.getFPS());
 	}
@@ -63,8 +107,14 @@ public class Menus extends GameEngine {
 		}		
 		changeColor(white);
 		float xcoord = cs.getResX()/2 - (80/2);
-		float ycoord = cs.getResY()/2 + (26/2);
+		float ycoord = (float) ((cs.getResY()*0.25) + (26/2));
 		drawBoldText(xcoord, ycoord, "Play");
+		xcoord = cs.getResX()/2 - (110/2);
+		ycoord = (float) ((cs.getResY()*0.55) - (30/2));
+		drawBoldText(xcoord, ycoord, "Client");
+		xcoord = cs.getResX()/2 - (80/2);
+		ycoord = (float) ((cs.getResY()*0.75) + (26/2));
+		drawBoldText(xcoord, ycoord, "Host");
 	}
 	public void keyPressed(KeyEvent event) {
 		if(gameStarted == false){
@@ -90,6 +140,22 @@ public class Menus extends GameEngine {
 									mFrame.dispose();
 									Menus.start();
 								}
+							}
+							if(btn.getLabel() == "Client"){
+								if(gameStarted == false){
+									gameStarted = true;
+									System.out.println("Start the game client");
+									mFrame.dispose();
+									Menus.startClient();
+								}	
+							}
+							if(btn.getLabel() == "Host"){
+								if(gameStarted == false){
+									gameStarted = true;
+									System.out.println("Start the game host");
+									mFrame.dispose();
+									Menus.startHost();
+								}				
 							}
 						}	
 					}

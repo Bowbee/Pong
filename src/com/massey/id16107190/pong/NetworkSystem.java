@@ -1,12 +1,19 @@
 package com.massey.id16107190.pong;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 public final class NetworkSystem {
 	 
     private static NetworkSystem INSTANCE;
     
-    private String hostIP = "";
+    private String hostIP = "127.0.0.1";
     private String clientIP = "";
-    private int port = 1234;
+    private int port = 1235;
     private int playerIndex = 0;
     
     private boolean connected = false;
@@ -15,6 +22,9 @@ public final class NetworkSystem {
     
     private boolean ready = false;
     private boolean otherReady = true;
+    
+    private Thread tr;
+   
 	
      
     private NetworkSystem() {  
@@ -27,6 +37,54 @@ public final class NetworkSystem {
          
         return INSTANCE;
     }
+    
+    public void Connect(){
+    	if(client){
+    		runClient();
+    	}
+    	if(host){
+    		runServer();
+    	}
+    }
+    
+    public void runClient(){
+    	if(client){
+    		try{
+    			tr = new Client(hostIP, port);
+    			tr.start();
+    		}
+    		catch (Exception e) {
+    			e.printStackTrace();
+			}
+    	}
+    }
+    public void runServer(){
+    	if(host){
+    		try{
+				tr = new Server(port);
+				tr.start();
+			}
+    		catch (Exception e) {
+    			e.printStackTrace();
+			}	
+    	}
+    }
+	public Box sendData(Box p1, Box p2, Ball ball) {
+		//System.out.println("Sending Data");
+		
+		if(playerIndex == 1){
+			return p2;
+		}
+		return p1;
+		
+		
+	}
+
+	public void sendNetPacket(NetPacket np) {	
+		Server sv = (Server) tr;
+		sv.updatePacket(np);
+	}
+    
     
 	public void sendClose() {
 		// send a close signal to the other player
@@ -75,25 +133,17 @@ public final class NetworkSystem {
 			this.ready = ready;
 		}
 		else{
-			sendReady();
+			Client cl = (Client) tr;
+			cl.setReady(true);
+			System.out.println("Client Ready!");
 		}
 		
 	}
-	
-	public Box sendData(Box p1, Box p2, Ball ball) {
-		//System.out.println("Sending Data");
-		
-		if(playerIndex == 1){
-			return p2;
+	public void setOtherReady(boolean ready){
+		if(host){
+			System.out.println("Other client is ready!");
+			this.otherReady = ready;
 		}
-		return p1;
-		
-		
-	}
-
-	public void sendGameState(GameState gs) {
-		System.out.println("Sending Game State");
-		
 	}
 
 	public int getPlayerIndex() {
@@ -102,6 +152,14 @@ public final class NetworkSystem {
 
 	public void setPlayerIndex(int playerIndex) {
 		this.playerIndex = playerIndex;
+	}
+	
+	public String getHostIP(){
+		return hostIP;
+		
+	}
+	public int getPort(){
+		return port;
 	}
 
 

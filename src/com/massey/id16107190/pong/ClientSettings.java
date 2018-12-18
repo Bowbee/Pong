@@ -2,12 +2,12 @@ package com.massey.id16107190.pong;
 
 import java.awt.event.KeyEvent;
 
-public final class ClientSettings {
+public final class ClientSettings{
 	 
     private static ClientSettings INSTANCE;
 	private int resX = 600;
 	private int resY = 600;
-	private int fps = 144;
+	private int fps = 60;
 	
 	private int p1u = KeyEvent.VK_W;
 	private int p1d = KeyEvent.VK_S;

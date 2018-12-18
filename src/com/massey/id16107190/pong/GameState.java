@@ -25,6 +25,12 @@ public final class GameState {
     private int ballSize = 10;
     private Ball ball = new Ball(cs.getResX()/2-(ballSize/2), cs.getResY()/2-(ballSize/2), ballSize);
 	private int ballInitSpeed = 3;
+	private Box netPaddle1 = new Box(0+(paddleWidth/2),cs.getResY()/2, paddleWidth,paddleHeight);
+	private Box netPaddle2 = new Box(cs.getResX()-(paddleWidth/2), cs.getResY()/2, paddleWidth, paddleHeight);
+	private Ball netBall = new Ball(cs.getResX()/2-(ballSize/2), cs.getResY()/2-(ballSize/2), ballSize);
+	private int netState = 0;
+	private int netPoints1;
+	private int netPoints2;
      
     private GameState() {  
 
@@ -153,4 +159,59 @@ public final class GameState {
 	public void setOnline(boolean online) {
 		this.online = online;
 	}
+
+	public void updateNP(NetPacket np) {
+		this.netPaddle1 = np.paddle1;
+		this.netPaddle2 = np.paddle2;
+		this.netBall = np.ball;
+		this.netState = np.state;
+		this.netPoints1 = np.p1Score;
+		this.netPoints2 = np.p2Score;
+		
+	}
+
+	public Box getNetPaddle1() {
+		return netPaddle1;
+	}
+
+	public Box getNetPaddle2() {
+		return netPaddle2;
+	}
+
+	public Ball getNetBall() {
+		return netBall;
+	}
+
+	public int isNetReady() {
+		return netState;
+	}
+
+	public void setNetReady(int b) {
+		this.netState = b;
+	}
+
+	public void setPlayer1Points(int player1Points) {
+		this.player1Points = player1Points;
+	}
+
+	public void setPlayer2Points(int player2Points) {
+		this.player2Points = player2Points;
+	}
+
+	public int getNetPoints1() {
+		return this.netPoints1;
+	}
+
+	public int getNetPoints2() {
+		return this.netPoints2;
+	}
+	public void setPlayer2Paddle(Box paddle){
+		this.player2Paddle = paddle;
+	}
+
+	public void SetPlayer1Paddle(Box paddle) {
+		this.player1Paddle = paddle;
+		
+	}
+
 }

@@ -49,6 +49,11 @@ public class Game extends GameEngine {
 		paddle1 = gs.GetPlayer1Paddle();
 		paddle2 = gs.GetPlayer2Paddle();
 		ball = gs.GetBall();
+		if(gs.isOnline()){
+			ns.Connect();
+			System.out.println("NS connect");
+		}
+		
 		
 	}
 
@@ -86,13 +91,33 @@ public class Game extends GameEngine {
 		if(titleSet == false){
 			titleSet = true;
 			mFrame.setTitle("Pong!");
-			if(gs.isOnline()){
-				ns.sendGameState(gs);
-			}			
+						
 		}
+		
 		if(gs.isOnline()){
 			if(ns.isHost()){
 				ns.sendData(paddle1, paddle2, ball);
+			}
+			if(ns.isClient()){
+				paddle1 = gs.getNetPaddle1();
+				paddle2 = gs.getNetPaddle2();
+				ball = gs.getNetBall();
+				gs.setPlayer1Points(gs.getNetPoints1());
+				gs.setPlayer2Points(gs.getNetPoints2());
+				
+				if(gs.isNetReady() == 1){
+					paused = false;
+					newGame = false;
+				}
+				if(gs.isNetReady() == 0){
+					paused = true;
+					newGame = true;
+				}
+				if(gs.isNetReady() == 2){
+					paused = true;
+					newGame = false;
+					reset();
+				}
 			}
 		}
 		
@@ -183,7 +208,7 @@ public class Game extends GameEngine {
 				ballVelX += increaseRate;
 				// velocity Y
 				float fromCenter = (p1Height+(cs.getResX()/2) - ball.getPosY()-(ball.getRadius()/2));
-				System.out.println(fromCenter);
+				
 				ballVelY = (fromCenter/turnRate)*-1;
 				AIoffset = getAIOffset();
 			}
@@ -197,7 +222,7 @@ public class Game extends GameEngine {
 				ballVelX -= increaseRate;
 				// velocity Y
 				float fromCenter = (p2Height+(cs.getResX()/2) - ball.getPosY()-(ball.getRadius()/2));
-				System.out.println(fromCenter);
+				
 				ballVelY = (fromCenter/turnRate)*-1;
 				AIoffset = getAIOffset();
 			}
@@ -205,16 +230,49 @@ public class Game extends GameEngine {
 		// newGame timer
 		if(paused == true && newGame == false){
 			if(scoreTime + cs.getWaitTime() <= time){
-				System.out.println("1.5 SECONDS");
 				paused = false;
 			}
 		}
 		
-		pc1.setPlayerPos(p1Height); //record height in player controller for future ref (networking?).
-		pc2.setPlayerPos(p2Height);
-		paddle1.setCoordY((cs.getResY()/2) + p1Height);
-		paddle2.setCoordY((cs.getResY()/2) + p2Height);
-
+		if(ns.getPlayerIndex() == 1){
+			paddle1.setCoordY((cs.getResY()/2) + p1Height);
+		}
+		if(ns.getPlayerIndex() == 2){
+			paddle2.setCoordY((cs.getResY()/2) + p2Height);
+		}
+		if(gs.isOnline() == false){
+			paddle1.setCoordY((cs.getResY()/2) + p1Height);
+			paddle2.setCoordY((cs.getResY()/2) + p2Height);
+		}
+		if(ns.isHost()){
+			gs.SetPlayer1Paddle(paddle1);
+			paddle2 = gs.GetPlayer2Paddle();
+			p2Height = paddle2.getpHeight();
+		}
+		
+		if(ns.isClient()){
+			gs.setPlayer2Paddle(paddle2);
+			paddle2.setpHeight(p2Height);
+		}
+		
+		
+		
+		
+		if(paused == false && newGame == false){
+			if(ns.isHost()){
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 1, gs.GetScore(1), gs.GetScore(2)));
+			}
+		}
+		if(paused == true && newGame == false){
+			if(ns.isHost()){
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 2, gs.GetScore(1), gs.GetScore(2)));
+			}
+		}
+		if(paused == true && newGame == true){
+			if(ns.isHost()){
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 0, gs.GetScore(1), gs.GetScore(2)));
+			}
+		}
 	}
 	
 	private float getAIOffset(){
