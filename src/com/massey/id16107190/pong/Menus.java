@@ -9,22 +9,22 @@ import java.util.List;
 public class Menus extends GameEngine {
 	
 	private static ClientSettings cs = ClientSettings.getInstance();
-	private List<Box> buttons = new ArrayList<>();
+
 	private boolean gameStarted = false;
 	private boolean titleSet = false;
-	private Color grey = new Color(100,100,100);
+
+	private MainMenu mMenu;
+	private HostMenu hostMenu;
+	private boolean mouseCooldown = false;
+	private long mouseTime;
 	
 	public void init() {
 		
 		// Initialise Window Size
 		setWindowSize(cs.getResX(), cs.getResY());
 		
-		Box playBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 200, 80, true, "Play");
-		Box clientBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.50), 200, 80, true, "Client");
-		Box hostBtn = new Box(cs.getResX()/2, (float) (cs.getResY()*0.75), 200, 80, true, "Host");
-		buttons.add(playBtn);
-		buttons.add(clientBtn);
-		buttons.add(hostBtn);
+		mMenu = new MainMenu();
+		hostMenu = new HostMenu();
 		
 	}
 
@@ -33,18 +33,11 @@ public class Menus extends GameEngine {
 		Game pong = new Game();
 		GameState gs = GameState.getInstance();
 		NetworkSystem ns = NetworkSystem.getInstance();
-		/*
-		gs.setPlayers(true, true);
-		gs.setOnline(true);
-		ns.setHost(true);
-		ns.setPlayerIndex(1);
-		*/
 		
 		gs.setPlayers(true, true);
 		gs.setOnline(true);
 		ns.setClient(true);
 		ns.setPlayerIndex(2);
-		
 		
 		GameEngine.createGame(pong, cs.getFPS());
 	}
@@ -66,18 +59,11 @@ public class Menus extends GameEngine {
 		Game pong = new Game();
 		GameState gs = GameState.getInstance();
 		NetworkSystem ns = NetworkSystem.getInstance();
-		/*
-		gs.setPlayers(true, true);
-		gs.setOnline(true);
-		ns.setHost(true);
-		ns.setPlayerIndex(1);
-		*/
 		
 		gs.setPlayers(true, true);
 		gs.setOnline(true);
 		ns.setClient(true);
 		ns.setPlayerIndex(2);
-		
 		
 		GameEngine.createGame(pong, cs.getFPS());
 	}
@@ -89,7 +75,11 @@ public class Menus extends GameEngine {
 			mFrame.setTitle("Pong Options");
 			titleSet = true;
 		}
-
+		if(mouseCooldown == true){
+			if(time - mouseTime >= 200){
+				mouseCooldown = false;
+			}
+		}
 	}
 	
 	public void paintComponent() {
@@ -100,22 +90,50 @@ public class Menus extends GameEngine {
 		// Draw Board on the screen
 		changeColor(white);
 		
-		
-		changeColor(grey);
-		for(Box btn: buttons){
-			drawSolidRectangle(btn.getHitbox().get(0), btn.getHitbox().get(1), btn.getHitbox().get(2), btn.getHitbox().get(3));
-		}		
+		if(mMenu.isMenuVisible()){
+			for(int i=0; i < mMenu.length(); i++){
+				if(mMenu.enabled(i) == true){
+					Button btn = mMenu.get(i);
+					
+					Box box = btn.getBox();
+					changeColor(btn.getBoxColor());
+					drawSolidRectangle(box.getHitbox().get(0), box.getHitbox().get(1), box.getHitbox().get(2), box.getHitbox().get(3));
+					
+					changeColor(btn.getTextColor());
+					String text = btn.getText();
+					float xCoord = btn.getBox().getCoordX() - btn.getTextWidth()/2;
+					float yCoord = btn.getBox().getCoordY() + btn.getTextHeight()/2;
+					drawBoldText(xCoord,yCoord,text);		
+				}
+			}
+		}
+		if(hostMenu.isMenuVisible()){
+			for(int i=0; i < hostMenu.length(); i++){
+				if(hostMenu.enabled(i) == true){
+					Button btn = hostMenu.get(i);
+					
+					Box box = btn.getBox();
+					changeColor(btn.getBoxColor());
+					drawSolidRectangle(box.getHitbox().get(0), box.getHitbox().get(1), box.getHitbox().get(2), box.getHitbox().get(3));
+					
+					changeColor(btn.getTextColor());
+					String text = btn.getText();
+					float xCoord = btn.getBox().getCoordX() - btn.getTextWidth()/2;
+					float yCoord = btn.getBox().getCoordY() + btn.getTextHeight()/2;
+					drawBoldText(xCoord,yCoord,text);					
+				}
+			}
+		}
+
 		changeColor(white);
-		float xcoord = cs.getResX()/2 - (80/2);
-		float ycoord = (float) ((cs.getResY()*0.25) + (26/2));
-		drawBoldText(xcoord, ycoord, "Play");
-		xcoord = cs.getResX()/2 - (110/2);
-		ycoord = (float) ((cs.getResY()*0.55) - (30/2));
-		drawBoldText(xcoord, ycoord, "Client");
-		xcoord = cs.getResX()/2 - (80/2);
-		ycoord = (float) ((cs.getResY()*0.75) + (26/2));
-		drawBoldText(xcoord, ycoord, "Host");
+
 	}
+	private void mouseCD() {
+		mouseTime = time;
+		mouseCooldown = true;
+		System.out.println("mousecd");
+	}
+	
 	public void keyPressed(KeyEvent event) {
 		if(gameStarted == false){
 			if(event.getKeyCode() == KeyEvent.VK_ENTER){
@@ -125,43 +143,63 @@ public class Menus extends GameEngine {
 			}
 		}
 	}
-	//System.out.println(event.getX() + " " + event.getY());
 	public void mouseClicked(MouseEvent event) {
-		if(event.getButton() == 1){ //if left click
-			for(Box btn : buttons){ 
-				if(btn.isEnabled()){	//for every button, if enabled do this:
-					List<Float> hitbox = btn.getHitbox();
-					if(event.getX() > hitbox.get(0) && event.getX() < (hitbox.get(0)+hitbox.get(2))){ // x coord check
-						if(event.getY() > hitbox.get(1) && event.getY() < (hitbox.get(1)+hitbox.get(3))){ // y coord check
-							if(btn.getLabel() == "Play"){
-								if(gameStarted == false){
-									gameStarted = true;
-									System.out.println("Start the game");
-									mFrame.dispose();
-									Menus.start();
+		if(mouseCooldown == false){
+			if(event.getButton() == 1){ //if left click
+				if(mMenu.isMenuVisible()){
+					for(int i=0; i < mMenu.length(); i++){
+						if(mMenu.enabled(i) == true){
+							Button btn = mMenu.get(i);
+							boolean isHit = btn.withinHitbox(event);
+							if(isHit == true){ // y coord check
+								if(i == 0){ // Play btn
+									if(gameStarted == false){
+										gameStarted = true;
+										System.out.println("Start the game");
+										mFrame.dispose();
+										Menus.start();
+									}
+								}
+								if(i == 1){ // Client btn
+									if(gameStarted == false){
+										System.out.println("Start the client");
+										gameStarted = true;
+										mMenu.setVisible(false);
+										//mFrame.dispose();
+										//Menus.startClient();
+									}	
+								}
+								if(i == 2){ // Host btn
+									if(gameStarted == false){
+										System.out.println("Start the host");
+										mMenu.setVisible(false);
+										hostMenu.setVisible(true);
+										mouseCD();
+										//gameStarted = true;
+									}
 								}
 							}
-							if(btn.getLabel() == "Client"){
-								if(gameStarted == false){
-									gameStarted = true;
-									System.out.println("Start the game client");
-									mFrame.dispose();
-									Menus.startClient();
-								}	
+						}
+					}
+				}
+				if(hostMenu.isMenuVisible()){
+					for(int i=0; i < hostMenu.length(); i++){
+						if(hostMenu.enabled(i) == true){
+							Button btn = hostMenu.get(i);
+							boolean isHit = btn.withinHitbox(event);
+							if(isHit == true){ // y coord check
+								if(i == 0){ // Start button
+									if(mouseCooldown == false){
+										gameStarted = true;
+										mFrame.dispose();
+										Menus.startHost();
+									}
+								}
 							}
-							if(btn.getLabel() == "Host"){
-								if(gameStarted == false){
-									gameStarted = true;
-									System.out.println("Start the game host");
-									mFrame.dispose();
-									Menus.startHost();
-								}				
-							}
-						}	
+						}
 					}
 				}
 			}
 		}		
 	}
-
 }

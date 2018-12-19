@@ -13,7 +13,7 @@ public final class NetworkSystem {
     
     private String hostIP = "127.0.0.1";
     private String clientIP = "";
-    private int port = 1235;
+    private int port = 23;
     private int playerIndex = 0;
     
     private boolean connected = false;
