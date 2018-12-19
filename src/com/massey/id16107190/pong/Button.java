@@ -13,6 +13,7 @@ public class Button {
 	private Color textColor = new Color(255,255,255);
 	private float textWidth;
 	private float textHeight;
+	private int textSize = 40;
 	
 	
 	public Button(Box box2, String str, float tw, float th, boolean en) {
@@ -92,6 +93,13 @@ public class Button {
 
 	public void setTextHeight(float textHeight) {
 		this.textHeight = textHeight;
+	}
+
+	public void setTextSize(int i) {
+		this.textSize  = i;
+	}
+	public int getTextSize(){
+		return textSize;
 	}
 
 }

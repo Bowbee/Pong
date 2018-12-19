@@ -1,5 +1,6 @@
 package com.massey.id16107190.pong;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 
 public final class ClientSettings{
@@ -16,6 +17,11 @@ public final class ClientSettings{
 	private int p2d = KeyEvent.VK_DOWN;
 	
 	private double waitTime = 1500; //ms, sec/1000
+	
+	public Color menuBackColor = new Color(240,240,240);
+	private boolean muted = false;
+	public boolean mouseCooldown = false;
+	public String keysPressed = "";
 	
      
     private ClientSettings() {  
@@ -43,6 +49,12 @@ public final class ClientSettings{
 	}
 	public int getFPS(){
 		return fps;
+	}
+	public boolean getMouseCooldown(){
+		return mouseCooldown;
+	}
+	public void setMouseCooldown(boolean b){
+		mouseCooldown = b;
 	}
 	
 	
@@ -80,5 +92,14 @@ public final class ClientSettings{
 
 	public double getWaitTime() {
 		return waitTime ;
+	}
+
+	public boolean getMuted() {
+		return muted ;
+	}
+
+	public void setMuted(boolean b) {
+		this.muted = b;
+		
 	}
 }

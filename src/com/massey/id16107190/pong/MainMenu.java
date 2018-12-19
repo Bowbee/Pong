@@ -3,14 +3,24 @@ package com.massey.id16107190.pong;
 public class MainMenu{
 	
 	private ClientSettings cs = ClientSettings.getInstance();
+	private Colors c = new Colors();
 
-	private Button playButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 200, 80, true, "Play"), "Play", 80, 24, true);
-	private Button clientButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.50), 200, 80, true, "Client"), "Connect", 156, 24, true);
-	private Button hostButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.75), 200, 80, true, "Host"), "Host", 80, 24, true);
+	private Button playButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 300, 100, true, "Play"), "Play", 80, 24, true);
+	private Button clientButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.50), 300, 100, true, "Client"), "Connect", 156, 24, true);
+	private Button hostButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.75), 300, 100, true, "Host"), "Host", 80, 24, true);
 	
 	private int length = 3;
 
 	private boolean visible = true;
+	
+	public MainMenu(){
+		playButton.setBoxColor(c.lightGray);
+		playButton.setTextColor(c.darkGray);
+		clientButton.setBoxColor(c.lightGray);
+		clientButton.setTextColor(c.darkGray);
+		hostButton.setBoxColor(c.lightGray);
+		hostButton.setTextColor(c.darkGray);
+	}
 
 	public Button get(int i) {
 		Button returnVar = null;

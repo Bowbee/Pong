@@ -39,7 +39,11 @@ public class Game extends GameEngine {
 	private float ballVelY = 0f;
 	private int turnRate = 24; //higher is less severe
 	private float increaseRate = 0.3333333f;
+	private boolean soundCD;
+	private long soundTime;
 	
+	private AudioClip beepSound = loadAudio("beep.wav");
+	private AudioClip scoreSound = loadAudio("score.wav");
 	
 	
 	public void init() {
@@ -67,6 +71,11 @@ public class Game extends GameEngine {
 		GameEngine.createGame(m, 144);
 	}
 	
+	public void onlineStart(){
+		paused = true;
+		scoreTime = time;
+	}
+	
 	public void reset(){
 		// Paddle reset
 		gs.ResetPaddles();
@@ -91,7 +100,9 @@ public class Game extends GameEngine {
 		if(titleSet == false){
 			titleSet = true;
 			mFrame.setTitle("Pong!");
-						
+			if(gs.isOnline()){
+				onlineStart();
+			}			
 		}
 		
 		if(gs.isOnline()){
@@ -132,8 +143,8 @@ public class Game extends GameEngine {
 			}
 		}
 		
-		ball.setPosX(ball.getPosX()+ballVelX);
-		ball.setPosY(ball.getPosY()+ballVelY);
+		ball.setPosX((float) (ball.getPosX()+(ballVelX*dt*60)));
+		ball.setPosY((float) (ball.getPosY()+(ballVelY*dt*60)));
 		
 		float ballX = ball.getPosX();
 		float ballY = ball.getPosY();
@@ -141,18 +152,22 @@ public class Game extends GameEngine {
 			reset();
 			System.out.println("SCORE RIGHT");
 			gs.Score(1);
+			playScore();
 		}
 		if(ballX < 0-(ball.getRadius()/2)){
 			reset();
 			System.out.println("SCORE LEFT");
 			gs.Score(2);
+			playScore();
 		}
 		
 		if(ballY-ball.getRadius() <= 0){
 			ballVelY *= -1;
+			playHit();
 		}
 		if(ballY+ball.getRadius() >= cs.getResY()){
 			ballVelY *= -1;
+			playHit();
 		}
 		
 		if(gs.isP1IsAI()){
@@ -168,14 +183,14 @@ public class Game extends GameEngine {
 				if(p1Height *-1 >= (cs.getResY()/2 - paddle1.getHeight()/2)){ //check for paddle boundaries
 					p1Height += 0;
 				}
-				else p1Height -= 6;
+				else p1Height -= (6*dt*60);
 				break;
 			}
 			case -1:{
 				if(p1Height *-1 <= (cs.getResY()/2 - paddle1.getHeight()/2)*-1){
 					p1Height += 0;
 				}
-				else p1Height += 6;
+				else p1Height += (6*dt*60);
 				break;
 			}
 		}
@@ -187,14 +202,14 @@ public class Game extends GameEngine {
 				if(p2Height *-1 >= (cs.getResY()/2 - paddle2.getHeight()/2)){ //check for paddle boundaries
 					p2Height += 0;
 				}
-				else p2Height -= 6;				
+				else p2Height -= (6*dt*60);				
 				break;
 			}
 			case -1:{
 				if(p2Height *-1 <= (cs.getResY()/2 - paddle2.getHeight()/2)*-1){
 					p2Height += 0;
 				}
-				else p2Height += 6;
+				else p2Height += (6*dt*60);
 				break;
 			}
 		}
@@ -211,6 +226,7 @@ public class Game extends GameEngine {
 				
 				ballVelY = (fromCenter/turnRate)*-1;
 				AIoffset = getAIOffset();
+				playHit();
 			}
 		}
 		
@@ -225,12 +241,25 @@ public class Game extends GameEngine {
 				
 				ballVelY = (fromCenter/turnRate)*-1;
 				AIoffset = getAIOffset();
+				playHit();
 			}
 		}
 		// newGame timer
 		if(paused == true && newGame == false){
 			if(scoreTime + cs.getWaitTime() <= time){
 				paused = false;
+			}
+		}
+		if(gs.isOnline()){ // instead of waiting for two players to be ready
+			if(paused == true && newGame == true && scoreTime + cs.getWaitTime() <= time){
+				paused = false;
+				newGame = false;
+			}
+		}
+		// prevent sound glitching by playing clip many times in a short period
+		if(soundCD == true){
+			if(soundTime + 100 <= time){
+				soundCD = false;
 			}
 		}
 		
@@ -256,8 +285,6 @@ public class Game extends GameEngine {
 		}
 		
 		
-		
-		
 		if(paused == false && newGame == false){
 			if(ns.isHost()){
 				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 1, gs.GetScore(1), gs.GetScore(2)));
@@ -275,6 +302,25 @@ public class Game extends GameEngine {
 		}
 	}
 	
+	private void playHit() {
+		if(soundCD == false && cs.getMuted() == false){
+			playAudio(beepSound, -10);
+			soundCooldown();
+		}
+	}
+
+	private void playScore() {
+		if(soundCD == false && cs.getMuted() == false){
+			playAudio(scoreSound, -10);
+			soundCooldown();
+		}
+	}
+	
+	private void soundCooldown(){
+		soundCD = true;
+		soundTime = time;
+	}
+
 	private float getAIOffset(){
 		float height = paddle1.getHeight();
 		float offset = random.nextInt(Math.round(height + 1 + height)) - height;
@@ -331,16 +377,26 @@ public class Game extends GameEngine {
 		}
 		else{
 			if(newGame == false){ // Draw ball
-				changeColor(white);
+				changeColor(gs.getBallColor());
 				drawSolidCircle(ball.getPosX(), ball.getPosY(), ball.getRadius());
 			}
 		}
-		
+
 		if(newGame == true){ // New Game (do once)
+			String pausedText;
+			int size = 200;
+			if(gs.isOnline() == false){
+				pausedText = "Press Enter";
+				size = 264;
+			}
+			else{
+				pausedText = "Waiting...";
+				size = 200;
+			}
 			changeColor(white);
-			float pausedX = cs.getResX()/2 - (270/2);
+			float pausedX = cs.getResX()/2 - (size/2);
 			float pausedY = cs.getResY()/2 + 10;
-			String pausedText = "Press Start";
+			
 			drawBoldText(pausedX, pausedY, pausedText,"Arial", 50);
 		}
 		else{ // central drawing
@@ -352,8 +408,9 @@ public class Game extends GameEngine {
 			
 		}
 		// Draw gameObjects (excluding ball)
-		changeColor(white);
+		changeColor(gs.getP1Color());
 		drawSolidRectangle(paddle1.getHitbox().get(0), paddle1.getCoordY()-(paddle1.getHeight()/2), paddle1.getHitbox().get(2), paddle1.getHitbox().get(3));
+		changeColor(gs.getP2Color());
 		drawSolidRectangle(paddle2.getHitbox().get(0), paddle2.getCoordY()-(paddle2.getHeight()/2), paddle2.getHitbox().get(2), paddle2.getHitbox().get(3));
 	}
 	

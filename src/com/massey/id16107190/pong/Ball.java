@@ -2,6 +2,7 @@ package com.massey.id16107190.pong;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Ball implements Serializable {
 	
 	private float posX;

@@ -1,5 +1,7 @@
 package com.massey.id16107190.pong;
 
+import java.awt.Color;
+
 public final class GameState {
 	 
     private static GameState INSTANCE;
@@ -31,6 +33,10 @@ public final class GameState {
 	private int netState = 0;
 	private int netPoints1;
 	private int netPoints2;
+	
+	private Color p1Color = new Color(255,255,255);
+	private Color p2Color = new Color(255,255,255);
+	private Color ballColor = new Color(255,255,255);
      
     private GameState() {  
 
@@ -212,6 +218,30 @@ public final class GameState {
 	public void SetPlayer1Paddle(Box paddle) {
 		this.player1Paddle = paddle;
 		
+	}
+
+	public Color getP1Color() {
+		return p1Color;
+	}
+
+	public void setP1Color(Color p1Color) {
+		this.p1Color = p1Color;
+	}
+
+	public Color getP2Color() {
+		return p2Color;
+	}
+
+	public void setP2Color(Color p2Color) {
+		this.p2Color = p2Color;
+	}
+
+	public Color getBallColor() {
+		return ballColor;
+	}
+
+	public void setBallColor(Color ballColor) {
+		this.ballColor = ballColor;
 	}
 
 }

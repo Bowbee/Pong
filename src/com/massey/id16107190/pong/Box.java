@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("serial")
 public class Box implements Serializable{
 	private boolean visible = false;
 	
@@ -86,6 +87,7 @@ public class Box implements Serializable{
 		return coordX;
 	}
 	public void setCoordX(float coordX) {
+		this.hitbox = Arrays.asList(coordX-(width/2), coordY-(height/2), width, height);
 		this.coordX = coordX;
 	}
 	public float getCoordY() {

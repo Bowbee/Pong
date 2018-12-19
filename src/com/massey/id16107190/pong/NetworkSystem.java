@@ -1,27 +1,27 @@
 package com.massey.id16107190.pong;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.awt.Color;
 
 public final class NetworkSystem {
 	 
     private static NetworkSystem INSTANCE;
     
+    private GameState gs = GameState.getInstance();
+    
     private String hostIP = "127.0.0.1";
-    private String clientIP = "";
     private int port = 23;
     private int playerIndex = 0;
     
-    private boolean connected = false;
+	private boolean connected = false;
     private boolean host = false;
     private boolean client = false;
     
     private boolean ready = false;
     private boolean otherReady = true;
+    
+	private Color hostColor;
+	private Color clientColor;
+	private Color ballColor;
     
     private Thread tr;
    
@@ -96,10 +96,6 @@ public final class NetworkSystem {
 		}
 		
 	}
-	private void sendReady() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public boolean isHost() {
 		return host;
@@ -160,6 +156,49 @@ public final class NetworkSystem {
 	}
 	public int getPort(){
 		return port;
+	}
+
+	public Color getHostColor() {
+		return hostColor;
+	}
+
+	public void setHostColor(Color hostColor) {
+		this.hostColor = hostColor;
+		if(host == true){
+			if(playerIndex == 1){
+				gs.setP1Color(hostColor);
+			}
+			if(playerIndex == 2){
+				gs.setP2Color(hostColor);
+			}
+		}
+	}
+
+	public Color getClientColor() {
+		return clientColor;
+	}
+
+	public void setClientColor(Color clientColor) {
+		this.clientColor = clientColor;
+		if(playerIndex == 1){
+			gs.setP1Color(clientColor);
+		}
+		if(playerIndex == 2){
+			gs.setP2Color(clientColor);
+		}
+	}
+
+	public Color getBallColor() {
+		return ballColor;
+	}
+
+	public void setBallColor(Color ballColor) {
+		if(host == true){
+			this.ballColor = ballColor;
+			gs.setBallColor(ballColor);
+		}
+		
+		
 	}
 
 
