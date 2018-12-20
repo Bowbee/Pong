@@ -319,7 +319,6 @@ public class PlayMenu{
 						ns.setBallColor(c.white);
 						gs.setOnline(false);
 						ns.setHost(false);
-						ns.setPlayerIndex(0);	
 					}
 					if(i == 29){
 						if(cs.getMuted() == false){
@@ -335,10 +334,12 @@ public class PlayMenu{
 						if(gs.isP2IsAI() == false){
 							btn.setBoxColor(c.green);
 							gs.setPlayers(true, false);
+							gs.setP2IsAI(true);
 						}
 						else{
 							btn.setBoxColor(c.red);
 							gs.setPlayers(true, true);
+							gs.setP2IsAI(false);
 						}
 						
 					}

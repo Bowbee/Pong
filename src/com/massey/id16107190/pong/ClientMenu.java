@@ -1,18 +1,21 @@
 package com.massey.id16107190.pong;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
 
 public class ClientMenu{
 	// THIS CODE IS A COMPLETE MESS I KNOW!
 	private ClientSettings cs = ClientSettings.getInstance();
+	private GameState gs = GameState.getInstance();
+	private NetworkSystem ns = NetworkSystem.getInstance();
 	private Colors c = new Colors();
 	
 	private Button connectButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.85), 260, 60, true, "connect"), "Connect", 160, 26, true);
-	private Button text1 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.1), 0, 0, true, "oppText"), "Connect to Opponent", 420, 60, true);
+	private Button text1 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.1), 0, 0, true, "oppText"), "Connect to Opponent", 400, 60, true);
 	
 	private Button text2 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 0, 0, true, "urText"), "Select your paddle colour", 320, 40, true);
 	
-	private Button text3 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.6), 0, 0, true, "ipText"), "IP: " + cs.keysPressed, 54, 60, true);
+	private Button text3 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.6), 0, 0, true, "ipText"), "IP: " + "localhost", 300, 60, true);
 	
 	private Button backdrop1 = new Button(new Box((float) (cs.getResX()*0.5), (float) (cs.getResY()*0.4), 554, 100, true, "backdrop1"), "", 0, 0, true);
 	
@@ -57,6 +60,7 @@ public class ClientMenu{
 	private int length = 15;
 
 	private boolean visible = false;
+	private boolean searching;
 
 	public Button get(int i) {
 		Button returnVar = null;
@@ -108,6 +112,84 @@ public class ClientMenu{
 	}
 	public void setVisible(boolean b){
 		visible = b;
+	}
+	public int getClicks(int i, MouseEvent event){
+		Button btn = this.get(i);
+		if(btn != null){
+			if(btn.getEnabled() == true){
+				boolean isHit = btn.withinHitbox(event);
+				if(isHit == true){ // y coord check
+					if(i == 0){ // Start button
+						if(cs.mouseCooldown == false && searching == false){
+							new NetPing();
+							System.out.println("Netping");
+							System.out.println(ns.isConnected());
+							btn.setText("  ...  ");
+							btn.setTextSize(80);
+							btn.setTextHeight(14);
+							searching = true;
+							if(ns.isConnected() == true){
+								System.out.println("CL CONNECTED!");
+								return 1;
+							}
+							return 0;
+						}
+					}
+					if(i == 12){
+						this.setVisible(false);
+						Menus.setVisible(1);
+						ns.setHostColor(c.white);	
+						ns.setClientColor(c.white);
+						ns.setBallColor(c.white);
+						gs.setOnline(false);
+						ns.setClient(false);
+						ns.setPlayerIndex(0);	
+					}
+					// PADDLE COLOURS
+					if(i == 6){ //red
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.red);		
+					}
+					if(i == 7){ //orange
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.orange);		
+					}
+					if(i == 8){ //green
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.green);		
+					}
+					if(i == 9){ //blue
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.blue);		
+					}
+					if(i == 10){ //purple
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.purple);		
+					}
+					if(i == 11){ //pink
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setClientColor(c.pink);		
+					}
+					if(i == 13){
+						if(cs.getMuted() == false){
+							btn.setBoxColor(c.red);
+							cs.setMuted(true);
+						}
+						else{
+							btn.setBoxColor(c.green);
+							cs.setMuted(false);
+						}
+					}
+				}
+			}
+		}
+		return 0;
 	}
 
 }

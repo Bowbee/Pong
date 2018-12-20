@@ -198,7 +198,19 @@ public final class NetworkSystem {
 			gs.setBallColor(ballColor);
 		}
 		
+	}
+
+	public void setHostIP(String keysPressed) {
+		hostIP = keysPressed;
 		
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	public void setConnected(boolean b) {
+		this.connected = b;
 	}
 
 

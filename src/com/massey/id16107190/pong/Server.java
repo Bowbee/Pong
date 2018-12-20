@@ -6,14 +6,10 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Date;
 
-/**
- * A TCP server that runs on port 9090.  When a client connects, it
- * sends the client the current date and time, then closes the
- * connection with that client.  Arguably just about the simplest
- * server you can write.
- */
+
 public class Server extends Thread {
 	
 	public int port;
@@ -33,34 +29,48 @@ public class Server extends Thread {
     	try{
 	        ServerSocket listener = new ServerSocket(port);
 	        try {
-	        	System.out.println("Running Server!");
+	        	System.out.println("Running Server! 1");
 	            while (true) {
 	            	
 	                Socket socket = listener.accept();
 	                try{
 	                	ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+	                	out.flush();
 	                	out.writeObject(np);
 	                	
 	                	ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
 
-	                    Box paddle = null;
+	                    ClientPacket cPacket = null;
 	        			try {
-	        				paddle = (Box) input.readObject();
+	        				cPacket = (ClientPacket) input.readObject();
 	        			} catch (ClassNotFoundException e) {
 	        				// TODO Auto-generated catch block
 	        				e.printStackTrace();
 	        			} catch (ClassCastException e){
 	        				
+	        			} catch (SocketException e){
+	        				gs.setOnline(false);
+	        				System.out.println("Client Disconnected");
+	        				//gs.setP2IsAI(true);
+	        				gs.setPlayer2Paddle(new Box(-1000, -1000, 0, 0));
 	        			}
 	        			
-	        			if(paddle != null){
-	        	            gs.setPlayer2Paddle(paddle);
+	        			if(cPacket != null){
+	        				gs.setP2Color(cPacket.p2Color);
+	        	            gs.setPlayer2Paddle(cPacket.paddle2);
 	        			}
 	        			else{
 	        				// No data
 	        			}
 
-	                } finally {
+	                }
+	                catch (SocketException e){
+        				gs.setOnline(false);
+        				System.out.println("Client Disconnected");
+        				//gs.setP2IsAI(true);
+        				gs.setPlayer2Paddle(new Box(-1000, -1000, 0, 0));
+        			}
+	                finally {
 	                    socket.close();
 	                }
 	            }

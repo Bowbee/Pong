@@ -5,9 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-/**
- * Trivial client for the date server.
- */
+
 public class Client extends Thread {
 	
 	private GameState gs = GameState.getInstance();
@@ -23,45 +21,50 @@ public class Client extends Thread {
 	}
     public void run() {
     	try{
+    		while(gs.isOnline() == true){
 	        Socket socket = new Socket(serverAddress, socketNum);
         	ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+        	
+        		NetPacket answer = null;
+    			try {
+    				answer = (NetPacket) input.readObject();
+    			} catch (ClassNotFoundException e) {
+    				e.printStackTrace();
+    			}
+    			
+    			if(answer != null){
+    	            np = answer;
+    	            gs.updateNP(np);
+    			}
+    			else{
+    				// No data
+    			}
+    			
+    			try{
+                	ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                	out.flush();
+                	
+                	if(ready == true && readySent == false){
+                		readySent = true;
+                		out.writeObject(ready);
+                	}
+                	else{
+                		out.writeObject(new ClientPacket(gs.GetPlayer2Paddle(), gs.getP2Color()));
+                	}
+                	
 
-            NetPacket answer = null;
-			try {
-				answer = (NetPacket) input.readObject();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			
-			if(answer != null){
-	            np = answer;
-	            gs.updateNP(np);
-			}
-			else{
-				// No data
-			}
-			
-			try{
-            	ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            	
-            	if(ready == true && readySent == false){
-            		readySent = true;
-            		out.writeObject(ready);
-            	}
-            	else{
-            		out.writeObject(gs.GetPlayer2Paddle());
-            	}
-            	
-
-            } finally {
-                socket.close();
-            }
-			try {
-				Thread.sleep(16);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			run();
+                } finally {
+                    socket.close();
+                }
+    			/*
+    			try {
+    				Thread.sleep(7);
+    			} catch (InterruptedException e) {
+    				e.printStackTrace();
+    			}
+    			*/
+        		
+        	}
 
             
     	} catch (SocketException e){

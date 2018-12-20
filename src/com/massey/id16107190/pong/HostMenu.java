@@ -1,13 +1,16 @@
 package com.massey.id16107190.pong;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
 
 public class HostMenu{
 	// THIS CODE IS A COMPLETE MESS I KNOW!
 	private ClientSettings cs = ClientSettings.getInstance();
+	private GameState gs = GameState.getInstance();
+	private NetworkSystem ns = NetworkSystem.getInstance();
 	private Colors c = new Colors();
 	
-	private Button startButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.85), 260, 60, true, "Start"), "Start", 100, 26, true);
+	private Button startButton = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.85), 260, 60, true, "Start"), "Searching...", 160, 16, true);
 	private Button text1 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.1), 0, 0, true, "oppText"), "Waiting for Opponent", 400, 60, true);
 	
 	private Button text2 = new Button(new Box(cs.getResX()/2, (float) (cs.getResY()*0.25), 0, 0, true, "oppText"), "Select your paddle colour", 320, 40, true);
@@ -40,7 +43,9 @@ public class HostMenu{
 	private Button muteBtn = new Button(new Box((float) (cs.getResX()*0.15), (float) (cs.getResY()*0.85), 80, 60, true, "mute"), "Sound", 60, 16, true);
 
 	public HostMenu(){
-		startButton.setBoxColor(new Color(60,60,60));
+		startButton.setBoxColor(c.lightGray);
+		startButton.setTextSize(30);
+		startButton.setTextColor(c.darkGray);
 		text1.setTextColor(new Color(0,0,0));
 		text2.setTextColor(new Color(30,30,30));
 		text2.setTextSize(26);
@@ -143,6 +148,105 @@ public class HostMenu{
 	}
 	public void setVisible(boolean b){
 		visible = b;
+	}
+	public int getClicks(int i, MouseEvent event){
+		Button btn = this.get(i);
+		if(btn != null){
+			if(btn.getEnabled() == true){
+				boolean isHit = btn.withinHitbox(event);
+				if(isHit == true){ // y coord check
+					if(i == 0){ // Start button
+						if(cs.mouseCooldown == false){
+							if(ns.isConnected() == true){
+								return 1;
+							}
+						}
+					}// PADDLE COLOURS
+					if(i == 6){ //red
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.red);		
+					}
+					if(i == 7){ //orange
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.orange);		
+					}
+					if(i == 8){ //green
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.green);		
+					}
+					if(i == 9){ //blue
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.blue);		
+					}
+					if(i == 10){ //purple
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.purple);		
+					}
+					if(i == 11){ //pink
+						Box h1 = this.getHighlight1().getBox();
+						h1.setCoordX(btn.getBox().getCoordX());
+						ns.setHostColor(c.pink);		
+					}
+					// BALL COLOURS
+					if(i == 14){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.red);		
+					}
+					if(i == 15){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.orange);		
+					}
+					if(i == 16){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.green);		
+					}
+					if(i == 17){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.blue);		
+					}
+					if(i == 18){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.purple);		
+					}
+					if(i == 19){
+						Box h2 = this.getHighlight2().getBox();
+						h2.setCoordX(btn.getBox().getCoordX());
+						ns.setBallColor(c.pink);		
+					}
+					if(i == 20){
+						this.setVisible(false);
+						Menus.setVisible(1);
+						ns.setHostColor(c.white);	
+						ns.setClientColor(c.white);
+						ns.setBallColor(c.white);
+						gs.setOnline(false);
+						ns.setHost(false);
+						ns.setPlayerIndex(0);	
+					}
+					if(i == 21){
+						if(cs.getMuted() == false){
+							btn.setBoxColor(c.red);
+							cs.setMuted(true);
+						}
+						else{
+							btn.setBoxColor(c.green);
+							cs.setMuted(false);
+						}
+					}
+				}
+			}
+		}
+		return 0;	
 	}
 
 }

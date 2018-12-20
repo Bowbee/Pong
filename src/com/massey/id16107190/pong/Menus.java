@@ -18,6 +18,7 @@ public class Menus extends GameEngine {
 	private ClientMenu clientMenu;
 	private PlayMenu playMenu;
 	private long mouseTime;
+	private boolean serverPinging;
 	
 	public void init() {
 		
@@ -36,7 +37,7 @@ public class Menus extends GameEngine {
 		Game pong = new Game();
 		GameState gs = GameState.getInstance();
 		
-		gs.setPlayers(true, true);
+		//gs.setPlayers(true, true);
 		gs.setOnline(false);
 		
 		GameEngine.createGame(pong, cs.getFPS());
@@ -77,6 +78,23 @@ public class Menus extends GameEngine {
 		if(cs.mouseCooldown == true){
 			if(time - mouseTime >= 200){
 				cs.mouseCooldown = false;
+			}
+		}
+		if(gs.isOnline() && ns.isHost() && serverPinging == false){
+			new NetPing();
+			serverPinging = true;
+			System.out.println("Server runninringing");
+		}
+		if(ns.isConnected() == true && gs.isOnline() && gameStarted == false){
+			if(ns.isClient()){
+				gameStarted = true;
+				mFrame.dispose();
+				Menus.startClient();
+			}
+			if(ns.isHost()){
+				gameStarted = true;
+				mFrame.dispose();
+				Menus.startHost();
 			}
 		}
 	}
@@ -177,19 +195,26 @@ public class Menus extends GameEngine {
 	}
 	
 	public void keyPressed(KeyEvent event) {
-		if(event.getKeyChar() != KeyEvent.VK_BACK_SPACE){
-			cs.keysPressed += String.valueOf(event.getKeyChar());
-			System.out.println(cs.keysPressed);
+		if(this.gameStarted == false){
+			if(event.getKeyChar() != KeyEvent.VK_BACK_SPACE){
+				if(event.getKeyChar() != KeyEvent.VK_ENTER){
+					if(cs.keysPressed.length() <= 16){
+						cs.keysPressed += String.valueOf(event.getKeyChar());
+					}
+				}
+			}
+			else{
+				if(cs.keysPressed.length() > 0){
+					cs.keysPressed = cs.keysPressed.substring(0, cs.keysPressed.length() - 1);
+				}
+			}
+			clientMenu.get(14).setText("IP: "+cs.keysPressed);
+			clientMenu.get(14).setTextWidth((28*cs.keysPressed.length())+60);
+			ns.setHostIP(cs.keysPressed);
 		}
 		else{
-			if(cs.keysPressed.length() > 0){
-				cs.keysPressed = cs.keysPressed.substring(0, cs.keysPressed.length() - 1);
-				System.out.println(cs.keysPressed);
-			}
+			cs.keysPressed = "";
 		}
-		clientMenu.get(14).setText("IP: "+cs.keysPressed);
-		clientMenu.get(14).setTextWidth((24*cs.keysPressed.length())+60);
-		
 	}
 	
 	public void mouseClicked(MouseEvent event) {
@@ -208,6 +233,7 @@ public class Menus extends GameEngine {
 										System.out.println("Start the game");
 										mMenu.setVisible(false);
 										playMenu.setVisible(true);
+										gs.setPlayers(true, false);
 										gs.setP1Color(c.red);
 										gs.setP2Color(c.red);
 										gs.setBallColor(c.red);
@@ -259,106 +285,13 @@ public class Menus extends GameEngine {
 						}
 					}
 				}
-				
-				
-				
 				if(hostMenu.isMenuVisible()){
 					for(int i=0; i < hostMenu.length(); i++){
-						Button btn = hostMenu.get(i);
-						if(btn != null){
-							if(btn.getEnabled() == true){
-								boolean isHit = btn.withinHitbox(event);
-								if(isHit == true){ // y coord check
-									if(i == 0){ // Start button
-										if(cs.mouseCooldown == false){
-											gameStarted = true;
-											mFrame.dispose();
-											Menus.startHost();
-										}
-									}// PADDLE COLOURS
-									if(i == 6){ //red
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.red);		
-									}
-									if(i == 7){ //orange
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.orange);		
-									}
-									if(i == 8){ //green
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.green);		
-									}
-									if(i == 9){ //blue
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.blue);		
-									}
-									if(i == 10){ //purple
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.purple);		
-									}
-									if(i == 11){ //pink
-										Box h1 = hostMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.pink);		
-									}
-									// BALL COLOURS
-									if(i == 14){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.red);		
-									}
-									if(i == 15){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.orange);		
-									}
-									if(i == 16){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.green);		
-									}
-									if(i == 17){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.blue);		
-									}
-									if(i == 18){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.purple);		
-									}
-									if(i == 19){
-										Box h2 = hostMenu.getHighlight2().getBox();
-										h2.setCoordX(btn.getBox().getCoordX());
-										ns.setBallColor(c.pink);		
-									}
-									if(i == 20){
-										hostMenu.setVisible(false);
-										mMenu.setVisible(true);
-										ns.setHostColor(c.white);	
-										ns.setClientColor(c.white);
-										ns.setBallColor(c.white);
-										gs.setOnline(false);
-										ns.setHost(false);
-										ns.setPlayerIndex(0);	
-									}
-									if(i == 21){
-										if(cs.getMuted() == false){
-											btn.setBoxColor(c.red);
-											cs.setMuted(true);
-										}
-										else{
-											btn.setBoxColor(c.green);
-											cs.setMuted(false);
-										}
-									}
-								}
-							}
+						int rtv = hostMenu.getClicks(i, event);
+						if (rtv == 1){
+							gameStarted = true;
+							mFrame.dispose();
+							Menus.startHost();
 						}
 					}
 				}
@@ -366,71 +299,11 @@ public class Menus extends GameEngine {
 				if(clientMenu.isMenuVisible()){
 					cs.keysPressed = "";
 					for(int i=0; i < clientMenu.length(); i++){
-						Button btn = clientMenu.get(i);
-						if(btn != null){
-							if(btn.getEnabled() == true){
-								boolean isHit = btn.withinHitbox(event);
-								if(isHit == true){ // y coord check
-									if(i == 0){ // Start button
-										if(cs.mouseCooldown == false){
-											gameStarted = true;
-											mFrame.dispose();
-											Menus.startHost();
-										}
-									}
-									if(i == 12){
-										clientMenu.setVisible(false);
-										mMenu.setVisible(true);
-										ns.setHostColor(c.white);	
-										ns.setClientColor(c.white);
-										ns.setBallColor(c.white);
-										gs.setOnline(false);
-										ns.setClient(false);
-										ns.setPlayerIndex(0);	
-									}
-									// PADDLE COLOURS
-									if(i == 6){ //red
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.red);		
-									}
-									if(i == 7){ //orange
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.orange);		
-									}
-									if(i == 8){ //green
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.green);		
-									}
-									if(i == 9){ //blue
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.blue);		
-									}
-									if(i == 10){ //purple
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.purple);		
-									}
-									if(i == 11){ //pink
-										Box h1 = clientMenu.getHighlight1().getBox();
-										h1.setCoordX(btn.getBox().getCoordX());
-										ns.setHostColor(c.pink);		
-									}
-									if(i == 13){
-										if(cs.getMuted() == false){
-											btn.setBoxColor(c.red);
-											cs.setMuted(true);
-										}
-										else{
-											btn.setBoxColor(c.green);
-											cs.setMuted(false);
-										}
-									}
-								}
-							}
+						int rtv = clientMenu.getClicks(i, event);
+						if (rtv == 1){
+							gameStarted = true;
+							mFrame.dispose();
+							Menus.startClient();
 						}
 					}
 				}

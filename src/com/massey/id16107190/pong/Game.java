@@ -101,6 +101,12 @@ public class Game extends GameEngine {
 			titleSet = true;
 			mFrame.setTitle("Pong!");
 			if(gs.isOnline()){
+				if(ns.isClient()){
+					mFrame.setTitle("Pong Client! ("+ns.getHostIP()+":"+ns.getPort()+")");
+				}
+				if(ns.isHost()){
+					mFrame.setTitle("Pong Host! (0.0.0.0:"+ns.getPort()+")");
+				}
 				onlineStart();
 			}			
 		}
@@ -135,6 +141,8 @@ public class Game extends GameEngine {
 		if(paused == false){
 			if(doOnceStart == false){
 				doOnceStart = true;
+				playAudio(scoreSound, -1000);
+				playAudio(beepSound, -1000);
 				int launchSide = (Math.random() <= 0.5) ? 1 : 2;
 				if(launchSide == 1){
 					ballVelX = ballSpeed * -1;
@@ -162,10 +170,12 @@ public class Game extends GameEngine {
 		}
 		
 		if(ballY-ball.getRadius() <= 0){
+			ball.setPosY(0+ball.getRadius());
 			ballVelY *= -1;
 			playHit();
 		}
 		if(ballY+ball.getRadius() >= cs.getResY()){
+			ball.setPosY(cs.getResY()-ball.getRadius());
 			ballVelY *= -1;
 			playHit();
 		}
@@ -175,22 +185,23 @@ public class Game extends GameEngine {
 		}
 		if(gs.isP2IsAI()){
 			p2Move = makeAImove(2);
-			System.out.println(p2Move);
+			//System.out.println(p2Move);
 		}
+		//System.out.println(gs.isP2IsAI());
 		
 		switch(p1Move){
 			case 1:{
 				if(p1Height *-1 >= (cs.getResY()/2 - paddle1.getHeight()/2)){ //check for paddle boundaries
 					p1Height += 0;
 				}
-				else p1Height -= (6*dt*60);
+				else p1Height -= (gs.getPaddleSpeed()*dt*60);
 				break;
 			}
 			case -1:{
 				if(p1Height *-1 <= (cs.getResY()/2 - paddle1.getHeight()/2)*-1){
 					p1Height += 0;
 				}
-				else p1Height += (6*dt*60);
+				else p1Height += (gs.getPaddleSpeed()*dt*60);
 				break;
 			}
 		}
@@ -202,14 +213,14 @@ public class Game extends GameEngine {
 				if(p2Height *-1 >= (cs.getResY()/2 - paddle2.getHeight()/2)){ //check for paddle boundaries
 					p2Height += 0;
 				}
-				else p2Height -= (6*dt*60);				
+				else p2Height -= (gs.getPaddleSpeed()*dt*60);				
 				break;
 			}
 			case -1:{
 				if(p2Height *-1 <= (cs.getResY()/2 - paddle2.getHeight()/2)*-1){
 					p2Height += 0;
 				}
-				else p2Height += (6*dt*60);
+				else p2Height += (gs.getPaddleSpeed()*dt*60);
 				break;
 			}
 		}
@@ -219,6 +230,7 @@ public class Game extends GameEngine {
 			if(ball.getPosY()-ball.getRadius() <= p1Height+(cs.getResX()/2)+(paddle1.getHeight()/2) //ball hitbox Y
 					&& ball.getPosY()+ball.getRadius()  >= p1Height+(cs.getResX()/2)-(paddle1.getHeight()/2)){
 				// velocity X
+				ball.setPosX(0+paddle1.getWidth()+ball.getRadius());
 				ballVelX *= -1;
 				ballVelX += increaseRate;
 				// velocity Y
@@ -234,6 +246,7 @@ public class Game extends GameEngine {
 			if(ball.getPosY()-ball.getRadius() <= p2Height+(cs.getResX()/2)+(paddle2.getHeight()/2) //ball hitbox Y
 					&& ball.getPosY()+ball.getRadius()  >= p2Height+(cs.getResX()/2)-(paddle2.getHeight()/2)){
 				// velocity X
+				ball.setPosX(cs.getResX()-paddle2.getWidth()-ball.getRadius());
 				ballVelX *= -1;
 				ballVelX -= increaseRate;
 				// velocity Y
@@ -287,17 +300,17 @@ public class Game extends GameEngine {
 		
 		if(paused == false && newGame == false){
 			if(ns.isHost()){
-				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 1, gs.GetScore(1), gs.GetScore(2)));
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 1, gs.GetScore(1), gs.GetScore(2), gs.getP1Color(), gs.getBallColor()));
 			}
 		}
 		if(paused == true && newGame == false){
 			if(ns.isHost()){
-				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 2, gs.GetScore(1), gs.GetScore(2)));
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 2, gs.GetScore(1), gs.GetScore(2), gs.getP1Color(), gs.getBallColor()));
 			}
 		}
 		if(paused == true && newGame == true){
 			if(ns.isHost()){
-				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 0, gs.GetScore(1), gs.GetScore(2)));
+				ns.sendNetPacket(new NetPacket(paddle1, paddle2, ball, 0, gs.GetScore(1), gs.GetScore(2), gs.getP1Color(), gs.getBallColor()));
 			}
 		}
 	}

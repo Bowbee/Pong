@@ -37,6 +37,7 @@ public final class GameState {
 	private Color p1Color = new Color(255,255,255);
 	private Color p2Color = new Color(255,255,255);
 	private Color ballColor = new Color(255,255,255);
+	private float paddleSpeed = 6;
      
     private GameState() {  
 
@@ -173,6 +174,8 @@ public final class GameState {
 		this.netState = np.state;
 		this.netPoints1 = np.p1Score;
 		this.netPoints2 = np.p2Score;
+		this.p1Color = np.p1Color;
+		this.ballColor = np.ballColor;
 		
 	}
 
@@ -242,6 +245,10 @@ public final class GameState {
 
 	public void setBallColor(Color ballColor) {
 		this.ballColor = ballColor;
+	}
+
+	public float getPaddleSpeed() {
+		return paddleSpeed;
 	}
 
 }
